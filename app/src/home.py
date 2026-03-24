@@ -23,7 +23,27 @@ def home_view(page: ft.Page):
         ]
     )
 
-    
+    def goal_status(title, current, total, unit):
+        return ft.Column(
+                spacing=6,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    ft.Text(title, size=15),
+                    ft.Container(
+                        width=300,
+                        content=
+                            ft.ProgressBar(
+                                width=300, 
+                                height=13,
+                                value=current/total,
+                                bgcolor=ft.Colors.GREY_300,
+                                color=ft.Colors.YELLOW_600,
+                                border_radius=10,
+                            )
+                    ),
+                    ft.Text(f"{current}/{total}{unit}", size=15),
+                ],
+            )
 
 
     goal_info = ft.Container(
@@ -38,22 +58,11 @@ def home_view(page: ft.Page):
                 spacing=6,
                 alignment=ft.MainAxisAlignment.CENTER,
                 horizontal_alignment=ft.CrossAxisAlignment.START,
-                controls=[
-                    ft.Row(
-                        spacing=6,
-                        alignment=ft.MainAxisAlignment.CENTER,
-                        controls=[
-                            ft.Text("🏃‍♀️목표 활동량", size=15)
-                        ],
-                    ),
-                    ft.Row(
-                        spacing=6,
-                        alignment=ft.MainAxisAlignment.CENTER,
-                        controls=[
-                            ft.Text("🍚목표 칼로리", size=15)
-                        ],
-                    ),
-                ],
+                controls=
+                    [
+                        goal_status("🏃목표 활동량", 30, 90, "분"),
+                        goal_status("🍚목표 칼로리", 35, 69, "kcal"),
+                    ],
             ),
         ]
     ),
