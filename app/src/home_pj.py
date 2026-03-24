@@ -247,7 +247,7 @@ def invisible_middle_box(image_src):
     )
 
 
-def main(page: ft.Page):
+def home_view(page: ft.Page):
     # =========================
     # 1. page 기본 설정
     # =========================
@@ -372,7 +372,8 @@ def main(page: ft.Page):
     # =========================
     # 5. page에 추가
     # =========================
-    page.add(pagelet)
+    # page.add(pagelet)
+    return pagelet
 
 
 if __name__ == "__main__":
@@ -383,7 +384,7 @@ if __name__ == "__main__":
         webbrowser.open = lambda *args, **kwargs: None
 
     ft.run(
-        main,
+        home_view,
         assets_dir="assets",
         view=ft.AppView.WEB_BROWSER,
         port=34636,

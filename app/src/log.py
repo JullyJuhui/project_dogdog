@@ -174,6 +174,7 @@ def log_view(page: ft.Page):
     )
 
     return ft.Column(
+        expand=True, # 추가
         scroll=ft.ScrollMode.AUTO,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,  # 추가
         controls=[

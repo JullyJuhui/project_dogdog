@@ -81,8 +81,8 @@ def main(page: ft.Page):
                 image=ft.DecorationImage(
                     # src="https://pds.joongang.co.kr/news/component/htmlphoto_mmdata/201901/20/28017477-0365-4a43-b546-008b603da621.jpg",
                     src="대추.jpg",
-                    # fit=ft.BoxFit.COVER,
-                    fit=ft.ImageFit.COVER,
+                    fit=ft.BoxFit.COVER,
+                    # fit=ft.ImageFit.COVER,
                 ),
             ),],
                 ft.Container(
@@ -260,4 +260,10 @@ if __name__ == "__main__":
     import webbrowser, os
     if os.getenv("FLET_NO_BROWSER"):
         webbrowser.open = lambda *args, **kwargs: None
-    ft.app(target=main, assets_dir="assets", view=ft.AppView.WEB_BROWSER, port=34636)
+    # ft.app(target=main, assets_dir="assets", view=ft.AppView.WEB_BROWSER, port=34636)
+    ft.run(
+        main,
+        assets_dir="assets",
+        view=ft.AppView.WEB_BROWSER,
+        port=34636,
+    )
