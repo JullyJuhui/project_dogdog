@@ -189,7 +189,7 @@ def micro_box(text):
     )
 
 
-def main(page: ft.Page):
+def log_view(page: ft.Page):
     page.padding = 0
     page.spacing = 0
     page.vertical_alignment = ft.MainAxisAlignment.START
@@ -669,7 +669,7 @@ def main(page: ft.Page):
         ),
     )
 
-    page.add(pagelet)
+    return pagelet
 
 
 if __name__ == "__main__":
@@ -680,7 +680,7 @@ if __name__ == "__main__":
         webbrowser.open = lambda *args, **kwargs: None
 
     ft.run(
-        main,
+        log_view,
         assets_dir="assets",
         view=ft.AppView.WEB_BROWSER,
         port=34636,

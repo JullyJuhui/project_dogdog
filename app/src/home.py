@@ -2,16 +2,13 @@ import flet as ft
 from datetime import datetime
 import math
 import flet.canvas as cv
+from bottomsheet import bottomSheet
 
 
 def home_view(page: ft.Page):
-    image_dog = ft.Row(
-        # scroll=ft.ScrollMode.AUTO,
-        alignment=ft.MainAxisAlignment.CENTER,
-        controls=[
-            ft.Container(
-                width=180,
-                height=180,
+    image_dog = ft.Container(
+                width=150,
+                height=150,
                 bgcolor=ft.Colors.BLACK,
                 shape=ft.BoxShape.CIRCLE,
                 image=ft.DecorationImage(
@@ -20,20 +17,18 @@ def home_view(page: ft.Page):
                     # fit=ft.ImageFit.COVER,
                 ),
             )
-        ]
-    )
 
     def goal_status(title, current, total, unit):
         return ft.Column(
                 spacing=6,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 controls=[
-                    ft.Text(title, size=15),
+                    ft.Text(title, size=15, color=ft.Colors.GREY_700, weight=ft.FontWeight.W_600,),
                     ft.Container(
-                        width=300,
+                        # width=300,
                         content=
                             ft.ProgressBar(
-                                width=300, 
+                                width=200, 
                                 height=13,
                                 value=current/total,
                                 bgcolor=ft.Colors.GREY_300,
@@ -41,32 +36,31 @@ def home_view(page: ft.Page):
                                 border_radius=10,
                             )
                     ),
-                    ft.Text(f"{current}/{total}{unit}", size=15),
+                    ft.Text(f"{current}/{total}{unit}", size=15, color=ft.Colors.GREY_500, weight=ft.FontWeight.W_600,),
                 ],
             )
-
 
     goal_info = ft.Container(
     padding=20,
     content=ft.Row(
-        alignment=ft.MainAxisAlignment.CENTER,
-        spacing=30,
-        controls=[
-            ft.Container(
-                content=image_dog),
-            ft.Column(
-                spacing=6,
-                alignment=ft.MainAxisAlignment.CENTER,
-                horizontal_alignment=ft.CrossAxisAlignment.START,
-                controls=
-                    [
-                        goal_status("🏃목표 활동량", 30, 90, "분"),
-                        goal_status("🍚목표 칼로리", 35, 69, "kcal"),
-                    ],
-            ),
-        ]
-    ),
-)
+            alignment=ft.MainAxisAlignment.CENTER,
+            spacing=10,
+            controls=[
+                ft.Container(
+                    content=image_dog),
+                ft.Column(
+                    spacing=6,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.START,
+                    controls=
+                        [
+                            goal_status("🏃목표 활동량", 30, 90, "분"),
+                            goal_status("🍚목표 칼로리", 35, 69, "kcal"),
+                        ],
+                ),
+            ]
+        ),
+    )
 
 
     def gauge_chart(percent=40, label="사료 잔여량: 800g"):
@@ -154,51 +148,24 @@ def home_view(page: ft.Page):
             ),
         )
 
-
-    # image_dog.controls[0].width = 100
-
-    # 프로필?
-    # profile = ft.
-    # profile = ft.Container(
-    #     expand=True,
-    #     padding=20,
-    #     content=ft.Column(
-    #         scroll=ft.ScrollMode.AUTO,
-    #         controls=[
-    #             # profile_card("dog.jpeg", "츄츄(2021.05.25)", "7.3kg"),
-    #             image_dog,
-    #             # super_long_box([
-
-    #             #     # record_card(
-    #             #     #     "3/19",
-    #             #     #     "오늘의 기록",
-    #             #     #     ["급여량: 43g", "음수량: 100ml", "산책: 30분"]
-    #             #     # )
-
-                    
-    #             # ]),
-    #         ],
-    #     ),
-    # )
-
     # 오늘의 기록
     today_log = ft.Container(
-        padding=20,
+        margin=20,
         content=ft.Row(
             alignment=ft.MainAxisAlignment.CENTER,
-            spacing=27,
+            spacing=10,
             controls=
             [
             ft.Container(
-                width=65,
-                height=80,
-                bgcolor=ft.Colors.YELLOW_500,
+                width=70,
+                height=75,
+                bgcolor=ft.Colors.YELLOW_600,
                 border_radius=10,
                 alignment=ft.Alignment(0, 0),  # ✅ 여기 수정
                 content=ft.Text(
                     f'{datetime.now().strftime("%m/%d")}',
                     size=20,
-                    weight=ft.FontWeight.W_700,
+                    weight=ft.FontWeight.W_600,
                     color=ft.Colors.BLACK,
                 ),
             ),ft.Column(
@@ -213,6 +180,7 @@ def home_view(page: ft.Page):
                             ft.Text(
                                 "🔥 오늘의 기록",
                                 size=20,
+                                weight=ft.FontWeight.W_500,
                                 color=ft.Colors.BLACK,
                             ),
                         ],
@@ -222,9 +190,9 @@ def home_view(page: ft.Page):
                         alignment=ft.MainAxisAlignment.CENTER,
                         controls=[
                             # micro_box(info) for info in info_list
-                            ft.Text(f" 급여량: 43g", size=15),
-                            ft.Text(f" 음수량: 100ml", size=15),
-                            ft.Text(f" 산책: 30분", size=15),
+                            ft.Text(f"급여량: 43g ", size=13),
+                            ft.Text(f"음수량: 100ml ", size=13),
+                            ft.Text(f"산책: 30분" , size=13),
                         ],
                     ),
                 ],
@@ -233,84 +201,14 @@ def home_view(page: ft.Page):
         )
     )
 
-    # date_text, title_text, info_list
-    # def today_log():
-    #     return ft.Row(
-    #         alignment=ft.MainAxisAlignment.START,
-    #         vertical_alignment=ft.CrossAxisAlignment.CENTER,
-    #         spacing=10,
-    #         controls=[
-    #             mini_box(date_text),
-    #             ft.Column(
-    #                 spacing=6,
-    #                 alignment=ft.MainAxisAlignment.CENTER,
-    #                 horizontal_alignment=ft.CrossAxisAlignment.START,
-    #                 controls=[
-    #                     ft.Row(
-    #                         spacing=6,
-    #                         controls=[
-    #                             ft.Text(f"🔥 오늘의 기록"),
-    #                             # ft.Text(
-    #                             #     title_text,
-    #                             #     size=16,
-    #                             #     weight=ft.FontWeight.W_600,
-    #                             #     color=ft.Colors.BLACK,
-    #                             # ),
-    #                         ],
-    #                     ),
-    #                     ft.Row(
-    #                         spacing=6,
-    #                         controls=[micro_box(info) for info in info_list],
-    #                     ),
-    #                 ],
-    #             ),
-    #         ],
-    #     )
-
-
-    button_style = ft.ButtonStyle(
-                        shape=ft.RoundedRectangleBorder(radius=10),
-                        bgcolor = ft.Colors.BROWN_400,
-                        color = ft.Colors.AMBER_100
-                    )
     
-            # ft.Container(
-            #     ft.Button(
-            #         "오늘 기록",
-            #         style=button_style
-            #     ),
-            #         # alignment=ft.Alignment.CENTER,
-            #         # bgcolor=ft.Colors.AMBER_200,
-            #         width=290,
-            #         height=50,
-            #         border_radius=10,
-            #     ),
-
-    def example():
-        bs = ft.BottomSheet(
-            ft.Container(
-                ft.Column(
-                    [
-                        ft.Text("This is sheet's content!"),
-                        ft.Button(
-                            "Close bottom sheet", on_click=lambda e: e.page.pop_dialog()
-                        ),
-                    ],
-                    tight=True,
-                ),
-                padding=10,
-            ),
-            open=False,
-            on_dismiss=lambda e: print("Dismissed!"),
-        )
-
-        return ft.Button("Display bottom sheet", on_click=lambda e: e.page.show_dialog(bs))
+        # page.show_dialog(bs)
 
     def menu_box(icon, title, on_click=None):
         return ft.Container(
             width=110,
             height=95,
-            bgcolor=ft.Colors.YELLOW_500,
+            bgcolor=ft.Colors.YELLOW_600,
             border_radius=16,
             alignment=ft.Alignment(0, 0),
             shadow=ft.BoxShadow(
@@ -324,8 +222,8 @@ def home_view(page: ft.Page):
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 spacing=8,
                 controls=[
-                    ft.Text(icon, size=28, color=ft.Colors.BLACK),
-                    ft.Text(title, size=15, color=ft.Colors.BLACK),
+                    ft.Text(icon, size=28, color=ft.Colors.BLACK), #
+                    ft.Text(title, size=15, color=ft.Colors.BLACK, weight=ft.FontWeight.W_600,),
                 ],
             ),
         )
@@ -338,7 +236,7 @@ def home_view(page: ft.Page):
                 alignment=ft.MainAxisAlignment.CENTER,
                 spacing=14,
                 controls=[
-                    menu_box("🦴", "밥주기", lambda e:example()),
+                    menu_box("🦴", "밥주기", lambda e:page.show_dialog(bottomSheet())),
                     menu_box("💧", "물주기", lambda e:print("물주기")),
                     menu_box("🦮", "활동기록", lambda e:print("활동기록")),  #🏃
                 ],
@@ -354,8 +252,6 @@ def home_view(page: ft.Page):
             ),
         ],
     )
-
-    
 
     return ft.Column(
         expand=True,
@@ -376,7 +272,7 @@ def home_view(page: ft.Page):
             # 기록 버튼
             log_button,
         ],
-        spacing=15,
+        spacing=0,
     )
 
 
