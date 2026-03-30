@@ -2,10 +2,11 @@ import flet as ft
 from datetime import datetime
 import math
 import flet.canvas as cv
-from bottomsheet import bottomSheet
+from views.home.bottomsheet import feeding_bottomSheet, water_bottomSheet
 
-
+# body
 def home_view(page: ft.Page):
+    # body 상단 - 강아지 이미지와 목표치
     image_dog = ft.Container(
                 width=150,
                 height=150,
@@ -236,8 +237,8 @@ def home_view(page: ft.Page):
                 alignment=ft.MainAxisAlignment.CENTER,
                 spacing=14,
                 controls=[
-                    menu_box("🦴", "밥주기", lambda e:page.show_dialog(bottomSheet())),
-                    menu_box("💧", "물주기", lambda e:print("물주기")),
+                    menu_box("🦴", "밥주기", lambda e:page.show_dialog(feeding_bottomSheet())),
+                    menu_box("💧", "물주기", lambda e:page.show_dialog(water_bottomSheet())),
                     menu_box("🦮", "활동기록", lambda e:print("활동기록")),  #🏃
                 ],
             ),

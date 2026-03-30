@@ -1,6 +1,6 @@
 import flet as ft
 
-def top_bar():
+def top_bar(title):
         return ft.Column(
             controls=[
                 ft.Container(
@@ -10,7 +10,7 @@ def top_bar():
                     content=ft.Row(
                         [
                             ft.Text(
-                                "🦴밥주기",
+                                title,
                                 size=20,
                                 weight=ft.FontWeight.W_600,
                             ),
@@ -29,7 +29,7 @@ def top_bar():
 
 # 투데이 로그 기록을 위한 바텀시트
 # 바텀시트 도전중.........................
-def bottomSheet():
+def feeding_bottomSheet():
     bs = ft.BottomSheet(
         open=True,
         scrollable=True,  # 바텀시트 내용만큼 올라옴***
@@ -44,7 +44,7 @@ def bottomSheet():
                 width=1000,
                 controls=
                 [
-                    top_bar(),  # 상단 바
+                    top_bar("🦴밥주기"),  # 상단 바
                     ft.Text("오늘 츄츄에게 딱 알맞은 1회 급여량은..", size=16),  # 문구
                     ft.Column
                     (
@@ -143,6 +143,89 @@ def bottomSheet():
             padding=10,
     ),
     on_dismiss=lambda e: print("Dismissed!"),
+    )
+    
+    return bs
+
+def water_bottomSheet():
+    bs = ft.BottomSheet(
+        open=True,
+        scrollable=True,  # 바텀시트 내용만큼 올라옴***
+        bgcolor=ft.Colors.WHITE,
+        content=
+        ft.Container(
+            # height=page.window.height * 0.88,   # 핵심
+            content=
+            ft.Column(
+                # scroll=ft.ScrollMode.AUTO,
+                # tight=True,
+                width=1000,
+                controls=
+                [
+                    top_bar("💧물주기"),  # 상단 바
+                    # ft.Text("오늘 츄츄에게 딱 알맞은 1회 음수량은..", size=16),  # 문구
+                    ft.Column
+                    (
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        controls=
+                        [
+                            ft.TextField(  # 음수량
+                                # value="40g",
+                                hint_text="물 섭취량(ml)",
+                                border_radius=9,
+                                expand=True,
+                                border_color=ft.Colors.GREY_400,
+                            ),
+                            ft.TextField(  # 메모
+                                hint_text="메모 (선택)",
+                                border_radius=9,
+                                expand=True,
+                                border_color=ft.Colors.GREY_400,
+                            ),
+
+                            # 날짜, 시간
+                            ft.Row(
+                                alignment=ft.MainAxisAlignment.CENTER,
+                                spacing=30,
+                                controls=[
+                                    ft.Row(
+                                        spacing=6,
+                                        controls=[
+                                            ft.Icon(ft.Icons.CALENDAR_MONTH_OUTLINED, size=18, color=ft.Colors.BLACK54),
+                                            ft.Text("2026.03.19", color=ft.Colors.BLACK54),
+                                        ],
+                                    ),
+                                    ft.Row(
+                                        spacing=6,
+                                        controls=[
+                                            ft.Icon(ft.Icons.ACCESS_TIME, size=18, color=ft.Colors.BLACK54),
+                                            ft.Text("오전 08:00", color=ft.Colors.BLACK54),
+                                        ],
+                                    ),
+                                ],
+                            ),
+
+                            # 저장
+                            ft.Container(
+                                width=65,
+                                height=35,
+                                alignment=ft.Alignment(0, 0),
+                                # alignment=ft.alignment.center,
+                                border_radius=9,
+                                bgcolor=ft.Colors.YELLOW_600,
+                                content=ft.Text(
+                                    "저장",
+                                    color=ft.Colors.WHITE,
+                                    weight=ft.FontWeight.BOLD,
+                                ),
+                                on_click=lambda e:e.page.pop_dialog()
+                    ),])
+                ],
+                tight=True,
+            ),
+            padding=10,
+            ),
+        on_dismiss=lambda e: print("Dismissed!"),
     )
     
     return bs
