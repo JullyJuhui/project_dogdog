@@ -11,3 +11,12 @@ def get_connection():
         port=9934,
         cursor_factory=RealDictCursor
     )
+
+    # return psycopg2.connect(
+    #     host="pg.nas6418.ddns.net",
+    #     database="Dogdog",
+    #     user="dog_5",
+    #     password="kosmo",
+    #     port=9934,
+    #     cursor_factory=RealDictCursor
+    # )

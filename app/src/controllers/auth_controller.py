@@ -19,9 +19,11 @@ def create_user_profile(email: str, nickname: str, password: str):
     예외:
     - 실패 시 Exception 발생
     """
+    print("controller")
 
     # 최종 요청 URL
     url = f"{BASE_URL}/app/user"
+    print(url)
 
     # 백엔드에 보낼 JSON 데이터
     payload = {
@@ -39,7 +41,10 @@ def create_user_profile(email: str, nickname: str, password: str):
         )
 
         # 200번대가 아니어도 일단 응답은 올 수 있으므로 직접 분기 처리
-        if response.status_code == 200:
+        # if response.status_code == 200:
+        #     return response.json()
+        if 200 <= response.status_code < 300:
+            print("백엔드")
             return response.json()
 
         # 에러 응답 처리

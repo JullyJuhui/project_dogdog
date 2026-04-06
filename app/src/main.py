@@ -3,8 +3,11 @@ from components.layout.top_bar import top_bar
 from views.home.home import home_view
 from views.logs.log import log_view
 from views.onboarding.user_basic_info import user_basic_info_view
+from controllers.auth_controller import create_user_profile
+
 
 def main(page: ft.Page):
+    print("시작")
     page.bgcolor = ft.Colors.WHITE
     page.padding = 0
     page.spacing = 0
@@ -28,9 +31,49 @@ def main(page: ft.Page):
         return ft.Text("페이지 준비 중")
 
     def handle_signup_success():
+        print("signup success called")
         nonlocal is_signed_up
         is_signed_up = True
         render_app()
+
+    error_text = ft.Text("", color=ft.Colors.RED_500, size=12)
+    loading_ring = ft.ProgressRing(visible=False, width=20, height=20)
+
+    form = user_basic_info_view(page)
+
+    def handle_continue():
+            print("signup success called!!")
+            # error_text.value = ""
+            # loading_ring.visible = True
+            page.update()
+
+            try:
+                print("hi")
+                email = form["email"].value.strip()
+                nickname = form["nickname"].value.strip()
+                password = form["password"].value.strip()
+
+                # if not email or not nickname or not password:
+                #     error_text.value = "모든 항목을 입력해주세요."
+                #     return
+
+                print(email, nickname, password)
+
+                result = create_user_profile(email, nickname, password)
+
+                print("저장 성공:", result)
+
+                handle_signup_success()
+
+                # if on_continue:
+                #     on_continue()
+
+            except Exception as ex:
+                error_text.value = str(ex)
+
+            finally:
+                loading_ring.visible = False
+                page.update()
 
     # onboarding
     def build_onboarding_layout():
@@ -39,12 +82,12 @@ def main(page: ft.Page):
             width=float("inf"),
             height=50,
             bgcolor=ft.Colors.YELLOW_600,
-            on_click= lambda e:handle_signup_success(),
+            on_click= handle_continue,
             content=ft.Column(
                 alignment=ft.MainAxisAlignment.CENTER,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                controls=ft.Text("Continue", color=ft.Colors.WHITE, size=20))
-            )
+                controls=[ft.Text("Continue", color=ft.Colors.WHITE, size=20)])
+        )
         return ft.Container(
             expand=True,
             bgcolor=ft.Colors.WHITE,
@@ -53,7 +96,7 @@ def main(page: ft.Page):
             padding=20,
             content=ft.Column(
                 controls=[
-                    user_basic_info_view(page, on_continue=handle_signup_success),
+                    form["view"],
                     bottom_button
                 ]
             )
