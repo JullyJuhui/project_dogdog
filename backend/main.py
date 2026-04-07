@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from backend.app.domains.auth.api.app_api import router as app_router
+from backend.app.domains.products.products_api import router as product_router
 
 # FastAPI 앱 생성
 app = FastAPI(
@@ -20,6 +22,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app_api.py의 라우터를 "/app" prefix와 함께 등록
-# 그래서 실제 주소는 "/user"이 아니라 "/app/user"이 됩니다.
+# 기존 auth 라우터 등록
+# 예: app_api.py 안에 @router.post("/user") 가 있으면 최종 주소는 /app/user
 app.include_router(app_router, prefix="/app")
+
+# 상품 라우터 등록
+# 예: product_api.py 안에 @router.get("/products") 가 있으면 최종 주소는 /app/products
+app.include_router(product_router, prefix="/app")
