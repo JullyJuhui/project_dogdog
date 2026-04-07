@@ -1,4 +1,4 @@
-from database.db import get_connection
+from backend.app.db import get_connection
 
 class UserRepository:
     """

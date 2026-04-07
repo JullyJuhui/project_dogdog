@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
-from backend.services.user_service import UserService
+from backend.app.domains.auth.service.user_service import UserService
 
 # APIRouter:
 # 여러 API를 묶어서 관리하기 위한 FastAPI 라우터 객체입니다.

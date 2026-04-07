@@ -1,5 +1,5 @@
 import hashlib
-from database.repositories.user_repository import UserRepository
+from backend.app.domains.auth.repository.user_repository import UserRepository
 
 class UserService:
     """
