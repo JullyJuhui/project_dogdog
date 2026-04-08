@@ -6,8 +6,8 @@ from database.models import ProductDetail
 def get_product_list(db: Session, keyword: str | None = None):
     query = (
         select(ProductDetail.product_detail_id, 
-               ProductDetail.product_name, 
-               )
+                ProductDetail.product_name, 
+                )
         # .options(joinedload(Product.product_detail))
         # .join(Product_Detail, Product.product_detail_id == Product_Detail.product_detail_id)
         # .where(Product.active == True)

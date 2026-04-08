@@ -21,5 +21,5 @@ class Product(Base):
     weight = Column(Integer, nullable=False)
     active = Column(Boolean, nullable=False, default=True)
     
-    product_detail = relationship("Product_Detail")
+    product_detail = relationship("ProductDetail")
     # product_detail = relationship("ProductDetail", back_populates="products")
