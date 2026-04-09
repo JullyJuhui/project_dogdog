@@ -7,9 +7,9 @@ from backend.app.domains.pets.petFood_repository import (
     get_product_by_id,
     get_active_pet_food,
     deactivate_pet_food,
-    insert_pet_food,
+    insert_customer_food,
+    insert_pet_product_feeding
 )
-
 
 def create_pet_food(
     db: Session,
@@ -17,7 +17,6 @@ def create_pet_food(
     pet_id: int,
     product_id: int | None,
     total_weight: int | None,
-    left_intake: int | None
 ):
     """
     반려견의 현재 급여 사료를 등록한다.
@@ -37,18 +36,18 @@ def create_pet_food(
     if total_weight is None:
         raise ValueError("TOTAL_WEIGHT_REQUIRED")
 
-    if left_intake is None:
-        raise ValueError("LEFT_INTAKE_REQUIRED")
+    # if left_intake is None:
+    #     raise ValueError("LEFT_INTAKE_REQUIRED")
 
     if total_weight <= 0:
         raise ValueError("INVALID_TOTAL_WEIGHT")
 
-    if left_intake < 0:
-        raise ValueError("INVALID_LEFT_INTAKE")
-
+    # if left_intake < 0:
+    #     raise ValueError("INVALID_LEFT_INTAKE")
+    
     # 필요하면 left_intake <= total_weight 검증도 가능
-    if left_intake > total_weight:
-        raise ValueError("INVALID_LEFT_INTAKE")
+    # if left_intake > total_weight:
+    #     raise ValueError("INVALID_LEFT_INTAKE")
 
     # 2. pet 존재 확인
     pet = get_pet_by_id(db=db, pet_id=pet_id)
@@ -69,7 +68,7 @@ def create_pet_food(
     if product is None:
         raise ValueError("PRODUCT_NOT_FOUND")
 
-    if product.one_gram_calories is None:
+    if product.product_detail.calories is None:
         raise ValueError("PRODUCT_CALORIES_NOT_FOUND")
 
     # 5. 기존 활성 사료 종료 처리
@@ -82,31 +81,33 @@ def create_pet_food(
         )
 
     # 6. 새 사료 등록
-    new_pet_food = insert_pet_food(
+    # 잔여량 등록
+    new_CustomerFood = insert_customer_food(
+        db=db,
+        pet_id=pet_id,
+        total_weight=total_weight
+    )
+
+    # 사료 등록
+    new_PetProductFeeding = insert_pet_product_feeding(
         db=db,
         pet_id=pet_id,
         product_id=product_id,
-        total_weight=total_weight,
-        left_intake=left_intake,
-        one_gram_calories=product.one_gram_calories
+        one_gram_calories=product.product_detail.calories
     )
 
     db.commit()
-    db.refresh(new_pet_food)
+    db.refresh(new_CustomerFood)
+    db.refresh(new_PetProductFeeding)
 
-    left_weight_g = total_weight - left_intake
+    # left_weight_g = total_weight - left_intake
 
     return {
-        "pet_id": new_pet_food.pet_id,
-        "product_id": new_pet_food.product_id,
-        "product_name": product.product_name,
-        "total_weight_g": new_pet_food.total_weight,
-        "left_weight_g": left_weight_g,
-        "one_gram_calories": new_pet_food.one_gram_calories,
-        "is_feeding_check": new_pet_food.is_feeding_check,
-        "record_date": str(new_pet_food.record_date),
-        "feeding_false_date": (
-            str(new_pet_food.feeding_false_date)
-            if new_pet_food.feeding_false_date else None
-        )
+        "pet_id": new_PetProductFeeding.pet_id,
+        "product_id": new_PetProductFeeding.product_id,
+        "product_name": product.product_detail.product_name,
+        "total_weight_g": new_CustomerFood.total_weight,
+        "one_gram_calories": new_PetProductFeeding.one_gram_calories,
+        "is_feeding_check": new_PetProductFeeding.is_feeding_check,
+        "record_date": str(new_PetProductFeeding.record_date)
     }

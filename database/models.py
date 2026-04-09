@@ -4,7 +4,7 @@ from sqlalchemy import (
     ForeignKey, CheckConstraint, UniqueConstraint, Computed, text
 )
 from sqlalchemy.orm import declarative_base, relationship, foreign
-from sqlalchemy.dialects.postgresql import JSONB, ARRAY, UUID, INET
+from sqlalchemy.dialects.postgresql import UUID, INET
 from pgvector.sqlalchemy import Vector
 
 Base = declarative_base()
@@ -42,7 +42,7 @@ class CompanionCustomerDetail(Base):
         {"schema": "Companion"},
     )
 
-    customer_id = Column(Integer, ForeignKey('"Companion".customer.customer_id'), primary_key=True, nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("Companion.customer.customer_id"), primary_key=True, nullable=False, index=True)
     email = Column(String(255), nullable=False, unique=True, index=True)
     oauth_type = Column(String(6))
     password = Column(String(255))
@@ -60,9 +60,10 @@ class CompanionCustomerFood(Base):
     __tablename__ = "customer_food"
     __table_args__ = {"schema": "Companion"}
 
-    pet_id = Column(Integer, ForeignKey('"Companion".pet.pet_id'), primary_key=True, nullable=False, index=True)
+    pet_id = Column(Integer, ForeignKey("Companion.pet.pet_id"), primary_key=True, nullable=False, index=True)
     total_weight = Column(SmallInteger, nullable=False)
-    feeding_start = Column(Date, nullable=False)
+    # feeding_start = Column(Date, nullable=False)
+    feeding_start = Column(Date, nullable=True)
     total_intake = Column(SmallInteger, server_default=text("0"))
     food_count = Column(SmallInteger, server_default=text("0"))
     left_food_count = Column(
@@ -88,8 +89,8 @@ class CompanionButler(Base):
     __tablename__ = "butler"
     __table_args__ = {"schema": "Companion"}
 
-    pet_id = Column(Integer, ForeignKey('"Companion".pet.pet_id'), primary_key=True, nullable=False)
-    customer_id = Column(Integer, ForeignKey('"Companion".customer.customer_id'), primary_key=True, nullable=False, index=True)
+    pet_id = Column(Integer, ForeignKey("Companion.pet.pet_id"), primary_key=True, nullable=False)
+    customer_id = Column(Integer, ForeignKey("Companion.customer.customer_id"), primary_key=True, nullable=False, index=True)
     is_main_butler = Column(Boolean, nullable=False, server_default=text("false"))
     butler_date = Column(Date, nullable=False, server_default=text("current_date"))
     active = Column(Boolean, nullable=False, server_default=text("true"))
@@ -110,7 +111,7 @@ class CompanionPet(Base):
     nickname = Column(String(10), nullable=False)
     birth_day = Column(Date)
     profile_image = Column(Text)
-    breed_id = Column(Integer, ForeignKey('"Companion".breed.breed_id'), nullable=False, index=True)
+    breed_id = Column(Integer, ForeignKey("Companion.breed.breed_id"), nullable=False, index=True)
     sex = Column(SmallInteger, nullable=False, index=True)
     is_neutered = Column(Boolean, nullable=False, index=True)
     weight = Column(Numeric(5, 2), nullable=False)
@@ -131,36 +132,11 @@ class CompanionPet(Base):
     breed = relationship("CompanionBreed", back_populates="pets")
     customer_food = relationship("CompanionCustomerFood", back_populates="pet", uselist=False)
     butlers = relationship("CompanionButler", back_populates="pet")
-    pet_jsonb_logs = relationship(
-        "CompanionPetJsonb",
-        primaryjoin="CompanionPet.pet_id == foreign(CompanionPetJsonb.pet_id)",
-        back_populates="pet",
-    )
     pet_log_boolean_entries = relationship("CompanionPetLogBoolean", back_populates="pet")
     pet_log_numeric_entries = relationship("CompanionPetLogNumeric", back_populates="pet")
     current_feeding_products = relationship("CompanionPetProductFeeding", back_populates="pet")
-    feeding_product_logs = relationship("CompanionPetProductFeedingLog", back_populates="pet")
     feeding_guides = relationship("CompanionFeedingGuide", back_populates="pet")
     pet_food_logs = relationship("CompanionPetFood", back_populates="pet")
-
-
-class CompanionPetJsonb(Base):
-    __tablename__ = "pet_jsonb"
-    __table_args__ = (
-        UniqueConstraint("log_date", "pet_id"),
-        {"schema": "Companion"},
-    )
-
-    log_date = Column(Date, nullable=False, index=True, primary_key=True)
-    pet_id = Column(Integer, nullable=False, index=True, primary_key=True)
-    jsonb_log = Column(JSONB, nullable=False, index=True)
-    last_update = Column(DateTime, nullable=False, server_default=text("now()"))
-
-    pet = relationship(
-        "CompanionPet",
-        primaryjoin="foreign(CompanionPetJsonb.pet_id) == CompanionPet.pet_id",
-        back_populates="pet_jsonb_logs",
-    )
 
 
 class CompanionPetLogBoolean(Base):
@@ -168,8 +144,8 @@ class CompanionPetLogBoolean(Base):
     __table_args__ = {"schema": "Companion"}
 
     pet_log_boolean_id = Column(Integer, primary_key=True)
-    pet_id = Column(Integer, ForeignKey('"Companion".pet.pet_id'), nullable=False, index=True)
-    customer_id = Column(Integer, ForeignKey('"Companion".customer.customer_id'), nullable=False, index=True)
+    pet_id = Column(Integer, ForeignKey("Companion.pet.pet_id"), nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("Companion.customer.customer_id"), nullable=False, index=True)
     category = Column(String(18), nullable=False, index=True)
     is_status = Column(Boolean, nullable=False, server_default=text("true"))
     memo = Column(Text)
@@ -185,8 +161,8 @@ class CompanionPetLogNumeric(Base):
     __table_args__ = {"schema": "Companion"}
 
     pet_log_numeric_id = Column(Integer, primary_key=True)
-    pet_id = Column(Integer, ForeignKey('"Companion".pet.pet_id'), nullable=False, index=True)
-    customer_id = Column(Integer, ForeignKey('"Companion".customer.customer_id'), nullable=False, index=True)
+    pet_id = Column(Integer, ForeignKey("Companion.pet.pet_id"), nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("Companion.customer.customer_id"), nullable=False, index=True)
     category = Column(String(18), nullable=False, index=True)
     log_status = Column(Numeric(5, 2))
     memo = Column(Text)
@@ -201,8 +177,8 @@ class CompanionPetProductFeeding(Base):
     __tablename__ = "pet_product_feeding"
     __table_args__ = {"schema": "Companion"}
 
-    pet_id = Column(Integer, ForeignKey('"Companion".pet.pet_id'), primary_key=True, nullable=False, index=True)
-    product_id = Column(Integer, ForeignKey('"OPD".product.product_id'), nullable=False, index=True)
+    pet_id = Column(Integer, ForeignKey("Companion.pet.pet_id"), primary_key=True, nullable=False, index=True)
+    product_id = Column(Integer, ForeignKey("OPD.product.product_id"), nullable=False, index=True)
     is_feeding_check = Column(Boolean, nullable=False, server_default=text("true"))
     feeding_false_date = Column(Date)
     record_date = Column(Date, nullable=False, server_default=text("current_date"))
@@ -213,37 +189,17 @@ class CompanionPetProductFeeding(Base):
     product = relationship("OpdProduct", back_populates="pet_product_feedings")
 
 
-class CompanionPetProductFeedingLog(Base):
-    __tablename__ = "pet_product_feeding_log"
-    __table_args__ = {"schema": "Companion"}
-
-    pet_product_feeding_log_id = Column(Integer, primary_key=True)
-    pet_id = Column(Integer, ForeignKey('"Companion".pet.pet_id'), nullable=False, index=True)
-    log_jsonb = Column(JSONB, nullable=False)
-    last_update = Column(DateTime, nullable=False, server_default=text("now()"))
-
-    pet = relationship("CompanionPet", back_populates="feeding_product_logs")
-
-
 class CompanionFeedingGuide(Base):
     __tablename__ = "feeding_guide"
     __table_args__ = {"schema": "Companion"}
 
-    pet_id = Column(Integer, ForeignKey('"Companion".pet.pet_id'), nullable=False, primary_key=True)
+    pet_id = Column(Integer, ForeignKey("Companion.pet.pet_id"), nullable=False, primary_key=True)
     base_intake = Column(SmallInteger)
     guide_intake = Column(SmallInteger)
-    guide_date = Column(Date, nullable=False, server_default=text("current_date"), primary_key=True)
+    guide_date = Column(Date, nullable=False, server_default=text("current_date"))
 
     pet = relationship("CompanionPet", back_populates="feeding_guides")
 
-
-class CompanionFeedingGuideLog(Base):
-    __tablename__ = "feeding_guide_log"
-    __table_args__ = {"schema": "Companion"}
-
-    guide_date = Column(Date, nullable=False, primary_key=True)
-    guide_array_log = Column(ARRAY(Text), nullable=False, index=True)
-    insert_time = Column(DateTime, nullable=False, server_default=text("now()"))
 
 
 class CompanionBreed(Base):
@@ -266,8 +222,8 @@ class CompanionPetFood(Base):
     __table_args__ = {"schema": "Companion"}
 
     pet_food_id = Column(Integer, primary_key=True)
-    pet_id = Column(Integer, ForeignKey('"Companion".pet.pet_id'), nullable=False, index=True)
-    customer_id = Column(Integer, ForeignKey('"Companion".customer.customer_id'), nullable=False, index=True)
+    pet_id = Column(Integer, ForeignKey("Companion.pet.pet_id"), nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("Companion.customer.customer_id"), nullable=False, index=True)
     food_type = Column(String(30), index=True)
     amount = Column(SmallInteger)
     calories = Column(SmallInteger)
@@ -305,8 +261,8 @@ class ErpEmployee(Base):
     username = Column(String(10), nullable=False)
     hire_date = Column(Date, nullable=False)
     quit_date = Column(Date)
-    emp_position_id = Column(Integer, ForeignKey('"ERP".emp_position.emp_position_id'), index=True)
-    manager_id = Column(Integer, ForeignKey('"ERP".employee.employee_id'), index=True)
+    emp_position_id = Column(Integer, ForeignKey("ERP.emp_position.emp_position_id"), index=True)
+    manager_id = Column(Integer, ForeignKey("ERP.employee.employee_id"), index=True)
     email = Column(String(255), nullable=False)
     phone = Column(String(13), nullable=False)
     address = Column(String(255), nullable=False)
@@ -346,7 +302,7 @@ class ErpAttendance(Base):
     )
 
     attendance_id = Column(Integer, primary_key=True)
-    employee_id = Column(Integer, ForeignKey('"ERP".employee.employee_id'), nullable=False, index=True)
+    employee_id = Column(Integer, ForeignKey("ERP.employee.employee_id"), nullable=False, index=True)
     work_date = Column(Date, nullable=False, server_default=text("current_date"))
     start_time = Column(Time, nullable=False)
     end_time = Column(Time)
@@ -361,8 +317,8 @@ class ErpErpConnect(Base):
     __table_args__ = {"schema": "ERP"}
 
     erp_connect_id = Column(Integer, primary_key=True)
-    employee_id = Column(Integer, ForeignKey('"ERP".employee.employee_id'), nullable=False, index=True)
-    white_list_id = Column(UUID(as_uuid=True), ForeignKey('"ERP".white_list.white_list_id'), nullable=False, index=True)
+    employee_id = Column(Integer, ForeignKey("ERP.employee.employee_id"), nullable=False, index=True)
+    white_list_id = Column(UUID(as_uuid=True), ForeignKey("ERP.white_list.white_list_id"), nullable=False, index=True)
     login_date = Column(DateTime, nullable=False, server_default=text("now()"))
     logout_date = Column(DateTime)
     log = Column(Text)
@@ -394,13 +350,13 @@ class ErpPurchaseOrder(Base):
     )
 
     purchase_order_id = Column(Integer, primary_key=True)
-    supplier_id = Column(Integer, ForeignKey('"ERP".supplier.supplier_id'), nullable=False, index=True)
+    supplier_id = Column(Integer, ForeignKey("ERP.supplier.supplier_id"), nullable=False, index=True)
     contract_date = Column(Date, nullable=False)
     inbound_scheduled_date = Column(Date)
     pay_status = Column(String(20), nullable=False, server_default=text("'scheduled'"))
     adjustment_date = Column(DateTime)
     is_purchase_order_cancel = Column(Boolean, nullable=False, server_default=text("false"))
-    employee_id = Column(Integer, ForeignKey('"ERP".employee.employee_id'), nullable=False, index=True)
+    employee_id = Column(Integer, ForeignKey("ERP.employee.employee_id"), nullable=False, index=True)
     order_form_file_path = Column(Text)
     last_update = Column(DateTime, nullable=False, server_default=text("now()"))
 
@@ -417,8 +373,8 @@ class ErpPurchaseOrderItem(Base):
         {"schema": "ERP"},
     )
 
-    purchase_order_id = Column(Integer, ForeignKey('"ERP".purchase_order.purchase_order_id'), primary_key=True, nullable=False)
-    product_id = Column(Integer, ForeignKey('"OPD".product.product_id'), primary_key=True, nullable=False, index=True)
+    purchase_order_id = Column(Integer, ForeignKey("ERP.purchase_order.purchase_order_id"), primary_key=True, nullable=False)
+    product_id = Column(Integer, ForeignKey("OPD.product.product_id"), primary_key=True, nullable=False, index=True)
     storage_method = Column(String(7))
     quantity = Column(Integer, nullable=False)
     purchase_price = Column(Integer, nullable=False)
@@ -437,11 +393,11 @@ class ErpInbound(Base):
     __table_args__ = {"schema": "ERP"}
 
     inbound_id = Column(Integer, primary_key=True)
-    purchase_order_id = Column(Integer, ForeignKey('"ERP".purchase_order.purchase_order_id'), nullable=False, index=True)
-    inbound_status_id = Column(SmallInteger, ForeignKey('"ERP".inbound_status.inbound_status_id'), nullable=False, index=True, server_default=text("101"))
+    purchase_order_id = Column(Integer, ForeignKey("ERP.purchase_order.purchase_order_id"), nullable=False, index=True)
+    inbound_status_id = Column(SmallInteger, ForeignKey("ERP.inbound_status.inbound_status_id"), nullable=False, index=True, server_default=text("101"))
     inbound_start = Column(DateTime)
     inbound_complete = Column(DateTime)
-    employee_id = Column(Integer, ForeignKey('"ERP".employee.employee_id'), index=True)
+    employee_id = Column(Integer, ForeignKey("ERP.employee.employee_id"), index=True)
     last_update = Column(DateTime, nullable=False, server_default=text("now()"))
 
     purchase_order = relationship("ErpPurchaseOrder", back_populates="inbounds")
@@ -457,8 +413,8 @@ class ErpStock(Base):
     __tablename__ = "stock"
     __table_args__ = {"schema": "ERP"}
 
-    product_id = Column(Integer, ForeignKey('"OPD".product.product_id'), primary_key=True, nullable=False)
-    inbound_id = Column(Integer, ForeignKey('"ERP".inbound.inbound_id'), primary_key=True, nullable=False, index=True)
+    product_id = Column(Integer, ForeignKey("OPD.product.product_id"), primary_key=True, nullable=False)
+    inbound_id = Column(Integer, ForeignKey("ERP.inbound.inbound_id"), primary_key=True, nullable=False, index=True)
     save_stock = Column(Integer, nullable=False, server_default=text("0"))
     sale_stock = Column(Integer, nullable=False, server_default=text("0"))
     scrap_stock = Column(Integer, nullable=False, server_default=text("0"))
@@ -491,7 +447,7 @@ class ErpSupplier(Base):
     is_contact_status = Column(Boolean, nullable=False, server_default=text("true"))
     designated_payment_date = Column(SmallInteger, nullable=False)
     scheduled_payment_date = Column(Date, nullable=False)
-    employee_id = Column(Integer, ForeignKey('"ERP".employee.employee_id'), nullable=False, index=True)
+    employee_id = Column(Integer, ForeignKey("ERP.employee.employee_id"), nullable=False, index=True)
     memo = Column(Text)
     sup_manager = Column(String(10), nullable=False)
     phone = Column(String(13), nullable=False)
@@ -527,7 +483,7 @@ class OpdCustomerDetail(Base):
         {"schema": "OPD"},
     )
 
-    customer_id = Column(Integer, ForeignKey('"OPD".customer.customer_id'), primary_key=True, nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("OPD.customer.customer_id"), primary_key=True, nullable=False, index=True)
     email = Column(String(255), nullable=False, unique=True)
     oauth_type = Column(String(6))
     oauth_token = Column(String(255))
@@ -561,8 +517,8 @@ class OpdPaymentBilling(Base):
     )
 
     payment_billing_id = Column(Integer, primary_key=True)
-    customer_id = Column(Integer, ForeignKey('"OPD".customer.customer_id'), nullable=False, index=True)
-    financial_company_id = Column(Integer, ForeignKey('"OPD".financial_company.financial_company_id'), nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("OPD.customer.customer_id"), nullable=False, index=True)
+    financial_company_id = Column(Integer, ForeignKey("OPD.financial_company.financial_company_id"), nullable=False, index=True)
     billing_key_name = Column(String(10))
     billing_key = Column(String(255), nullable=False, unique=True)
     is_default_card = Column(Boolean, nullable=False, server_default=text("false"))
@@ -579,7 +535,7 @@ class OpdProduct(Base):
     __table_args__ = {"schema": "OPD"}
 
     product_id = Column(Integer, primary_key=True)
-    product_detail_id = Column(Integer, ForeignKey('"OPD".product_detail.product_detail_id'), nullable=False, index=True)
+    product_detail_id = Column(Integer, ForeignKey("OPD.product_detail.product_detail_id"), nullable=False, index=True)
     quantity = Column(SmallInteger, nullable=False)
     retail_price = Column(Integer, nullable=False)
     weight = Column(SmallInteger, nullable=False)
@@ -616,7 +572,7 @@ class OpdProductDetail(Base):
     calories = Column(Numeric(4, 2))
     thumbnail = Column(Text)
     pdi = Column(Text)
-    vector_embed = Column(Vector(384))
+    # vector_embed = Column(Vector(384))
     kibble_size = Column(String(20))
     life = Column(String(6), nullable=False)
     protein_type = Column(String(9))
@@ -646,8 +602,8 @@ class OpdSubs(Base):
     __table_args__ = {"schema": "OPD"}
 
     subs_id = Column(Integer, primary_key=True)
-    customer_id = Column(Integer, ForeignKey('"OPD".customer.customer_id'), nullable=False, index=True)
-    subs_plan_id = Column(Integer, ForeignKey('"OPD".subs_plan.subs_plan_id'), nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("OPD.customer.customer_id"), nullable=False, index=True)
+    subs_plan_id = Column(Integer, ForeignKey("OPD.subs_plan.subs_plan_id"), nullable=False, index=True)
     subs_date = Column(DateTime, primary_key=True, nullable=False, server_default=text("now()"))
     is_auto_delivery = Column(Boolean, nullable=False, server_default=text("false"))
     is_subs_status = Column(Boolean, nullable=False, index=True, server_default=text("true"))
@@ -699,7 +655,7 @@ class OpdSubsDetail(Base):
     __table_args__ = {"schema": "OPD"}
 
     subs_id = Column(Integer, primary_key=True, nullable=False, index=True)
-    payment_billing_id = Column(Integer, ForeignKey('"OPD".payment_billing.payment_billing_id'), nullable=False)
+    payment_billing_id = Column(Integer, ForeignKey("OPD.payment_billing.payment_billing_id"), nullable=False)
     address = Column(String(255), nullable=False)
     detail_address = Column(String(255), nullable=False)
     postal_code = Column(String(5), nullable=False)
@@ -722,8 +678,8 @@ class OpdSubsItem(Base):
     __table_args__ = {"schema": "OPD"}
 
     subs_id = Column(Integer, primary_key=True, nullable=False)
-    inbound_id = Column(Integer, ForeignKey('"ERP".inbound.inbound_id'), primary_key=True, nullable=False, index=True)
-    product_id = Column(Integer, ForeignKey('"OPD".product.product_id'), nullable=False, index=True)
+    inbound_id = Column(Integer, ForeignKey("ERP.inbound.inbound_id"), primary_key=True, nullable=False, index=True)
+    product_id = Column(Integer, ForeignKey("OPD.product.product_id"), nullable=False, index=True)
     quantity = Column(SmallInteger, nullable=False)
     retail_price = Column(Integer, nullable=False)
     total_amount = Column(Integer, nullable=False)
@@ -744,8 +700,8 @@ class OpdWishlist(Base):
     __tablename__ = "wishlist"
     __table_args__ = {"schema": "OPD"}
 
-    customer_id = Column(Integer, ForeignKey('"OPD".customer.customer_id'), primary_key=True, nullable=False)
-    product_id = Column(Integer, ForeignKey('"OPD".product.product_id'), primary_key=True, nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("OPD.customer.customer_id"), primary_key=True, nullable=False)
+    product_id = Column(Integer, ForeignKey("OPD.product.product_id"), primary_key=True, nullable=False, index=True)
     last_update = Column(DateTime, nullable=False, server_default=text("now()"))
 
     customer = relationship("OpdCustomer", back_populates="wishlists")
@@ -756,8 +712,8 @@ class OpdCart(Base):
     __tablename__ = "cart"
     __table_args__ = {"schema": "OPD"}
 
-    customer_id = Column(Integer, ForeignKey('"OPD".customer.customer_id'), primary_key=True, nullable=False)
-    product_id = Column(Integer, ForeignKey('"OPD".product.product_id'), primary_key=True, nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("OPD.customer.customer_id"), primary_key=True, nullable=False)
+    product_id = Column(Integer, ForeignKey("OPD.product.product_id"), primary_key=True, nullable=False, index=True)
     quantity = Column(SmallInteger, nullable=False)
     last_update = Column(DateTime, nullable=False, server_default=text("now()"))
 
@@ -775,11 +731,11 @@ class OpdSalesOrder(Base):
     address = Column(String(255), nullable=False)
     detail_address = Column(String(255), nullable=False)
     postal_code = Column(String(5), nullable=False)
-    customer_id = Column(Integer, ForeignKey('"OPD".customer.customer_id'), nullable=False, index=True)
+    customer_id = Column(Integer, ForeignKey("OPD.customer.customer_id"), nullable=False, index=True)
     memo = Column(Text)
     recipient = Column(String(10), nullable=False)
     phone = Column(String(13), nullable=False)
-    payment_billing_id = Column(Integer, ForeignKey('"OPD".payment_billing.payment_billing_id'))
+    payment_billing_id = Column(Integer, ForeignKey("OPD.payment_billing.payment_billing_id"))
     last_update = Column(DateTime, nullable=False, server_default=text("now()"))
 
     customer = relationship("OpdCustomer", back_populates="sales_orders")
@@ -815,8 +771,8 @@ class OpdSalesOrderItem(Base):
     __table_args__ = {"schema": "OPD"}
 
     sales_order_id = Column(Integer, primary_key=True, nullable=False)
-    inbound_id = Column(Integer, ForeignKey('"ERP".inbound.inbound_id'), primary_key=True, nullable=False, index=True)
-    product_id = Column(Integer, ForeignKey('"OPD".product.product_id'), primary_key=True, nullable=False, index=True)
+    inbound_id = Column(Integer, ForeignKey("ERP.inbound.inbound_id"), primary_key=True, nullable=False, index=True)
+    product_id = Column(Integer, ForeignKey("OPD.product.product_id"), primary_key=True, nullable=False, index=True)
     quantity = Column(SmallInteger, nullable=False)
     retail_price = Column(Integer, nullable=False)
     total_amount = Column(Integer, nullable=False)
@@ -839,7 +795,7 @@ class OpdPayment(Base):
     payment_id = Column(Integer, primary_key=True)
     sales_order_id = Column(Integer, index=True)
     subs_id = Column(Integer, index=True)
-    payment_status_id = Column(SmallInteger, ForeignKey('"OPD".payment_status.payment_status_id'), nullable=False, index=True, server_default=text("101"))
+    payment_status_id = Column(SmallInteger, ForeignKey("OPD.payment_status.payment_status_id"), nullable=False, index=True, server_default=text("101"))
     pay_number = Column(String(12), nullable=False, server_default=text("unique_number()"))
     payment_date = Column(DateTime, primary_key=True, nullable=False, server_default=text("now()"))
     amount = Column(Integer, nullable=False)
@@ -881,10 +837,10 @@ class OpdDelivery(Base):
     __table_args__ = {"schema": "OPD"}
 
     delivery_id = Column(Integer, primary_key=True)
-    delivery_status_id = Column(SmallInteger, ForeignKey('"OPD".delivery_status.delivery_status_id'), nullable=False, index=True, server_default=text("101"))
+    delivery_status_id = Column(SmallInteger, ForeignKey("OPD.delivery_status.delivery_status_id"), nullable=False, index=True, server_default=text("101"))
     sales_order_id = Column(Integer, index=True)
     subs_id = Column(Integer, index=True)
-    employee_id = Column(Integer, ForeignKey('"ERP".employee.employee_id'), index=True)
+    employee_id = Column(Integer, ForeignKey("ERP.employee.employee_id"), index=True)
     insert_delivery_date = Column(DateTime, primary_key=True, nullable=False, server_default=text("now()"))
     order_start_date = Column(DateTime)
     invoice = Column(String(20))
@@ -914,10 +870,10 @@ class OpdReturnOrder(Base):
     __table_args__ = {"schema": "OPD"}
 
     return_order_id = Column(Integer, primary_key=True)
-    delivery_status_id = Column(SmallInteger, ForeignKey('"OPD".delivery_status.delivery_status_id'), nullable=False, index=True, server_default=text("401"))
+    delivery_status_id = Column(SmallInteger, ForeignKey("OPD.delivery_status.delivery_status_id"), nullable=False, index=True, server_default=text("401"))
     sales_order_id = Column(Integer, index=True)
     subs_id = Column(Integer, index=True)
-    employee_id = Column(Integer, ForeignKey('"ERP".employee.employee_id'), index=True)
+    employee_id = Column(Integer, ForeignKey("ERP.employee.employee_id"), index=True)
     insert_return_date = Column(DateTime, primary_key=True, nullable=False, server_default=text("now()"))
     invoice = Column(String(20))
     return_product_date = Column(DateTime)
@@ -954,8 +910,8 @@ class OpdReturnItem(Base):
     __table_args__ = {"schema": "OPD"}
 
     return_order_id = Column(Integer, primary_key=True, nullable=False)
-    inbound_id = Column(Integer, ForeignKey('"ERP".inbound.inbound_id'), primary_key=True, nullable=False, index=True)
-    product_id = Column(Integer, ForeignKey('"OPD".product.product_id'), primary_key=True, nullable=False, index=True)
+    inbound_id = Column(Integer, ForeignKey("ERP.inbound.inbound_id"), primary_key=True, nullable=False, index=True)
+    product_id = Column(Integer, ForeignKey("OPD.product.product_id"), primary_key=True, nullable=False, index=True)
     quantity = Column(SmallInteger, nullable=False)
     memo = Column(Text, nullable=False)
     non_refundable = Column(SmallInteger, nullable=False, server_default=text("0"))
