@@ -49,18 +49,19 @@ def read_products(
             }
         )
     
-#/products/weight
-@router.get("/products/weight")
-def read_products(
-        product_detail_id: str = Query(
-            default=None,
+#/products/weights
+@router.get("/products/weights")
+def read_products_weights(
+        #/products/weights?product_detail_id=1
+        product_detail_id: int = Query(
+            # default=None,
             # max_length=50,
             description="상품 디테일 ID"
         ),
         db: Session = Depends(get_db)
     ):
     try:
-        products = get_product_weight(db=db, keyword=product_detail_id)
+        products = get_product_weight(db=db, product_detail_id=product_detail_id)
 
         data = [
             {
