@@ -151,8 +151,8 @@ class CompanionPetJsonb(Base):
         {"schema": "Companion"},
     )
 
-    log_date = Column(Date, nullable=False, index=True)
-    pet_id = Column(Integer, nullable=False, index=True)
+    log_date = Column(Date, nullable=False, index=True, primary_key=True)
+    pet_id = Column(Integer, nullable=False, index=True, primary_key=True)
     jsonb_log = Column(JSONB, nullable=False, index=True)
     last_update = Column(DateTime, nullable=False, server_default=text("now()"))
 
@@ -229,10 +229,10 @@ class CompanionFeedingGuide(Base):
     __tablename__ = "feeding_guide"
     __table_args__ = {"schema": "Companion"}
 
-    pet_id = Column(Integer, ForeignKey('"Companion".pet.pet_id'), nullable=False)
+    pet_id = Column(Integer, ForeignKey('"Companion".pet.pet_id'), nullable=False, primary_key=True)
     base_intake = Column(SmallInteger)
     guide_intake = Column(SmallInteger)
-    guide_date = Column(Date, nullable=False, server_default=text("current_date"))
+    guide_date = Column(Date, nullable=False, server_default=text("current_date"), primary_key=True)
 
     pet = relationship("CompanionPet", back_populates="feeding_guides")
 
@@ -241,7 +241,7 @@ class CompanionFeedingGuideLog(Base):
     __tablename__ = "feeding_guide_log"
     __table_args__ = {"schema": "Companion"}
 
-    guide_date = Column(Date, nullable=False)
+    guide_date = Column(Date, nullable=False, primary_key=True)
     guide_array_log = Column(ARRAY(Text), nullable=False, index=True)
     insert_time = Column(DateTime, nullable=False, server_default=text("now()"))
 
