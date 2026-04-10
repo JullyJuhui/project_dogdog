@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from database.models import CompanionPet, CompanionCustomerFood, CompanionButler, CompanionPetProductFeeding, OpdProduct
+from database.models import CompanionCustomerFood, CompanionPetProductFeeding
 
 from datetime import date
 
@@ -12,7 +12,6 @@ def get_active_pet_food(db: Session, pet_id: int):
         select(CompanionPetProductFeeding)
         .where(
             CompanionPetProductFeeding.pet_id == pet_id,
-            # 주석 해제 예정*********************************************
             CompanionPetProductFeeding.is_feeding_check == True
         )
     )
@@ -31,12 +30,6 @@ def get_pet_food(db: Session, pet_id: int):
     exist_pet_food = result.scalar_one_or_none()
     return exist_pet_food
 
-
-# 기존 활성 사료 종료 = 삭제
-def deactivate_pet_food(db: Session, pet_food: CompanionPetProductFeeding, feeding_false_date):
-    pet_food.is_feeding_check = False
-    pet_food.feeding_false_date = feeding_false_date
-
 # 기존 customer_food 등록자인지 확인
 def get_customer_food_id(
     db: Session,
@@ -49,6 +42,25 @@ def get_customer_food_id(
 
     result = db.execute(query)
     return result.scalar_one_or_none()
+
+# ------------------------------ 삭제 ------------------------------
+# 기존 활성 사료 종료 = 삭제
+def deactivate_pet_food(db: Session, pet_food: CompanionPetProductFeeding, feeding_false_date):
+    pet_food.is_feeding_check = False
+    pet_food.feeding_false_date = feeding_false_date
+
+    return pet_food
+
+def end_pet_food(db: Session, pet_id: int):
+    active_food = get_active_pet_food(db=db, pet_id=pet_id)
+    if active_food is not None: # 급여중인 사료가 있다면
+        deactive_food = deactivate_pet_food(
+            db=db,
+            pet_food=active_food,
+            feeding_false_date=date.today()
+        )
+        return deactive_food
+    
 
 # ------------------------------ 등록 ------------------------------
 def insert_customer_food(

@@ -27,8 +27,8 @@ app.add_middleware(
 # 예: app_api.py 안에 @router.post("/user") 가 있으면 최종 주소는 /app/user
 app.include_router(app_router, prefix="/app")
 
-# 상품 라우터 등록
+# pets 라우터 등록
 app.include_router(pets_router, prefix="/app")
 
-# 상품 라우터 등록
+# products 라우터 등록
 app.include_router(products_router, prefix="/app")
