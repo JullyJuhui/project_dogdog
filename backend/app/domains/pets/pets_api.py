@@ -7,13 +7,14 @@ from database.db import get_db
 from backend.app.domains.pets.petFood_service import create_pet_food
 # from backend.app.core.auth import get_current_customer_id  # 가정: 토큰에서 customer_id 추출
 
+router = APIRouter(tags=["pets"])
+
+# 급여사료 등록
 class PetFoodCreateRequest(BaseModel):
     customer_id: int | None = Field(default=None, description="임시용 고객 ID")
     product_id: int = Field(..., description="상품 ID")
     total_weight: int = Field(..., gt=0, description="남은 급여 가능량(g)")
     # left_intake: int = Field(..., ge=0, description="남은 급여 가능량(g)")
-
-router = APIRouter(tags=["pets"])
 
 @router.post("/pets/{pet_id}/pet_food")
 def register_pet_food(
@@ -58,6 +59,7 @@ def register_pet_food(
             "PRODUCT_NOT_FOUND": (404, "존재하지 않는 사료입니다."),
             "FORBIDDEN_PET_ACCESS": (403, "해당 반려견에 대한 권한이 없습니다."),
             "PRODUCT_CALORIES_NOT_FOUND": (404, "상품 칼로리 정보가 없습니다."),
+            "EXIST_PET_FOOD": (409, "기존의 상품과 같은 상품입니다.")
         }
 
         status_code, message = error_map.get(
@@ -85,3 +87,4 @@ def register_pet_food(
                 "message": "사료 정보 저장에 실패했습니다."
             }
         )
+    
