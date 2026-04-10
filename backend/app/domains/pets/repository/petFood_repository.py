@@ -91,8 +91,8 @@ def insert_pet_product_feeding(
     product_id: int,
     one_gram_calories: float
 ):
-    new_pet_food = get_pet_food(db=db, pet_id=pet_id) # 신규 판별
-    active_pet_food = get_active_pet_food(db=db, pet_id=pet_id)# 활성사료 판별
+    new_pet_food = get_pet_food(db=db, pet_id=pet_id) # 1: 신규 판별
+    active_pet_food = get_active_pet_food(db=db, pet_id=pet_id)# 2: 활성사료 판별
     
     # 첫 사료등록인 경우 = pet_id에 대한 row가 존재 하지 않는 경우
     if new_pet_food is None:
@@ -103,22 +103,26 @@ def insert_pet_product_feeding(
         )
         db.add(new_pet_food)
         return new_pet_food
-
-    # 새 급여 사료 row 생성
+    
+    # 존재하지만 비활성화인 경우
+    elif new_pet_food.is_feeding_check == False:
+        new_pet_food.is_feeding_check = True
+        new_pet_food.product_id = product_id,
+        new_pet_food.one_gram_calories = one_gram_calories
+        return new_pet_food
+    
     # 이미 존재하는 경우
-    # 변경하려는 사료가 기존 사료와 같은지 비교 --------------> 에러처리 필요
-    # false 처리 -> json으로 결과 넘기고 update
     else:
+        # 변경하려는 사료가 기존 사료와 같은지 비교 --------------> 에러처리 필요
         if active_pet_food.product_id == product_id:
             raise ValueError("EXIST_PET_FOOD") 
         
+        # 새 급여 사료 row 생성
+        # false 처리 -> json으로 결과 넘기고 update
         deactivate_pet_food(
             db=db,
             pet_food=active_pet_food,
             feeding_false_date=date.today()
         )
-        active_pet_food.is_feeding_check = True
-        active_pet_food.product_id = product_id,
-        active_pet_food.one_gram_calories = one_gram_calories
 
         return active_pet_food

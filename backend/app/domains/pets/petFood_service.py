@@ -73,9 +73,11 @@ def create_pet_food(
     if total_weight > product.weight:
         raise ValueError("HIGH_TOTAL_WEIGHT")
     
+    pet_food = get_active_pet_food(db, pet_id)
 
     # 5. 기존 활성 사료 종료 처리
-    end_pet_food(db, pet_id)
+    # if pet_food is None
+    # end_pet_food(db, pet_id)
 
     # 6. 새 사료 등록
     # 사료 등록
