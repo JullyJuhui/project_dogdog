@@ -38,7 +38,7 @@ def read_guide_intake(
                 }
             )
         
-        # 해다 반려견 권한 확인
+        # 해당 반려견 권한 확인
         has_access = check_pet_owner(db=db, pet_id=pet_id, customer_id=customer_id)
         if not has_access:
             return JSONResponse(
