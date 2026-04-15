@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.domains.auth.api.app_api import router as app_router
-from backend.app.domains.products.products_api import router as products_router
-from backend.app.domains.pets.pets_api import router as pets_router
+from backend.app.auth.api.app_api import router as app_router
+from backend.app.products.products_api import router as products_router
+from backend.app.pets.pets_api import router as pets_router
 
 # FastAPI 앱 생성
 app = FastAPI(
